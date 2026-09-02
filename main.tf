@@ -47,6 +47,20 @@ resource "aws_instance" "app_server" {
   
   vpc_security_group_ids = [aws_security_group.app_server.id]
 
+  ebs_optimized = true
+
+  monitoring = true
+
+  metadata_options {
+    http_tokens = "required"
+  }
+
+  root_block_device {
+    encrypted   = true
+    volume_type = "gp3"
+    volume_size = 8
+  }
+
   tags = {
     Name = "terraform-pipeline"
   }
