@@ -13,6 +13,10 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
+data "aws_iam_instance_profile" "ssm_profile" {
+  name = "ec2-ssm-role"
+}
+
 resource "aws_security_group" "app_server" {
   name        = "app-server-sg"
   description = "No Inbound Access, SSM Manager only"
@@ -30,6 +34,8 @@ resource "aws_security_group" "app_server" {
 resource "aws_instance" "app_server" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.micro"
+  iam_instance_profile = data.aws_iam_instance_profile.ssm_profile.name
+  
   vpc_security_group_ids = [aws_security_group.app_server.id]
 
   tags = {
