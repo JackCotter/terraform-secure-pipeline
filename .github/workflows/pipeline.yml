@@ -80,6 +80,9 @@ jobs:
     name: Terraform Apply
     needs: [plan, checkov, sast-scan]
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment: production
     steps:
