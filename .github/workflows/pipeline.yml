@@ -10,7 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  plan-and-scan:
+  plan:
+    name: Terrafrom Plan
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -36,10 +37,18 @@ jobs:
       - name: Terraform Format Check
         run: terraform fmt -check
 
+      - name: Terraform Validate
+        run: terraform validate
+
       - name: Terraform Plan
-        env: 
-          TF_VAR_github_ip_ranges: ${{ secrets.IP_RANGES_GITHUB }}
-        run: terraform plan -no-color
+        run: terraform plan -no-color -out=tfplan
+
+  checkov:
+    name: Checkov Configuration Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Run Checkov
         uses: bridgecrewio/checkov-action@v12
@@ -47,7 +56,9 @@ jobs:
           directory: .
           quiet: true
           soft_fail: false
+
   sast-scan:
+    name: Bandit SAST Scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -63,3 +74,35 @@ jobs:
 
       - name: Run Bandit SAST scan
         run: bandit -r leaderboard_game/game leaderboard_game/leaderboard_game -ll
+
+
+  apply:
+    name: Terraform Apply
+    needs: [plan, checkov, sast-scan]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+ 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::985753407778:role/github-actions-terraform
+          aws-region: ca-west-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.0"
+ 
+      - name: Terraform Init
+        run: terraform init
+ 
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+ 
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
+
