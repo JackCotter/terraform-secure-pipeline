@@ -8,7 +8,7 @@ APP_DIR="/opt/app"
 apt-get update
 apt-get install -y ca-certificates curl gnupg git unzip
 
-# Install AWS CLIv2 from source
+# Install AWS CLI v2 via official installer — not available via apt on Ubuntu 24.04
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
 unzip -q /tmp/awscliv2.zip -d /tmp
 /tmp/aws/install
