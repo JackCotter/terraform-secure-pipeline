@@ -58,14 +58,14 @@ resource "aws_security_group" "app_server" {
   }
 
   egress {
-  # checkov:skip=CKV_AWS_23: Temporarily scoped to GitHub's published git/SSH IP ranges for deploy-key-based clone; will be removed once the repo is public and cloning switches to unauthenticated HTTPS.
-  description      = "SSH outbound to GitHub only, temporary, until repo goes public"
-  from_port        = 22
-  to_port          = 22
-  protocol         = "tcp"
-  cidr_blocks      = var.github_git_cidrs_v4
-  ipv6_cidr_blocks = var.github_git_cidrs_v6
-}
+    # checkov:skip=CKV_AWS_23: Temporarily scoped to GitHub's published git/SSH IP ranges for deploy-key-based clone; will be removed once the repo is public and cloning switches to unauthenticated HTTPS.
+    description      = "SSH outbound to GitHub only, temporary, until repo goes public"
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = var.github_git_cidrs_v4
+    ipv6_cidr_blocks = var.github_git_cidrs_v6
+  }
 }
 
 resource "aws_instance" "app_server" {
@@ -79,7 +79,7 @@ resource "aws_instance" "app_server" {
 
   monitoring = true
 
-  user_data                   = file("${path.module}/leaderboard_game/leaderboard_game/bootstrap.sh")
+  user_data                   = file("${path.module}/leaderboard_game/bootstrap.sh")
   user_data_replace_on_change = true
 
   metadata_options {
