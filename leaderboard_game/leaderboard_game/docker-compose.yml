@@ -1,0 +1,29 @@
+services:
+  db:
+    build: ./docker/db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Not exposed to the host at all — only reachable by the web service, on the compose network.
+
+  web:
+    build: .
+    restart: always
+    env_file: .env
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.1:8000:8000"  # bound to localhost only — nginx will front this later
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn --bind 0.0.0.0:8000 --workers 3 leaderboard_game.wsgi:application"
+
+volumes:
+  pgdata:

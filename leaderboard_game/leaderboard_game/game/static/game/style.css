@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --ink: #14171a;
+  --paper: #eef1ee;
+  --panel: #ffffff;
+  --go: #2f9e64;
+  --wait: #c94f3d;
+  --line: #d7dbd6;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Mono', monospace;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 48px 20px;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 420px;
+}
+
+.head h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  margin: 0 0 32px;
+  color: #5b625d;
+  font-size: 0.9rem;
+}
+
+.game-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.pad {
+  width: 100%;
+  padding: 56px 0;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  background: var(--ink);
+  color: var(--paper);
+  transition: background 120ms ease;
+}
+
+.pad[data-state="waiting"] { background: var(--wait); color: #fff; }
+.pad[data-state="go"] { background: var(--go); color: #fff; }
+
+.readout {
+  text-align: center;
+  margin: 16px 0 0;
+  font-size: 0.95rem;
+  min-height: 1.2em;
+}
+
+.submit-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 32px;
+}
+
+#score-form {
+  display: flex;
+  gap: 8px;
+}
+
+#name {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+#score-form button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 3px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.submit-msg {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: #5b625d;
+}
+
+.board h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  text-transform: none;
+  margin: 0 0 12px;
+}
+
+#leaderboard-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: rank;
+}
+
+#leaderboard-list li {
+  counter-increment: rank;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+
+#leaderboard-list li::before {
+  content: counter(rank) ".";
+  color: #8a908b;
+  margin-right: 10px;
+}
+
+.lb-empty { color: #8a908b; }
+.lb-empty::before { content: none; }

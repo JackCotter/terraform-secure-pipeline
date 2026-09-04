@@ -17,6 +17,16 @@ data "aws_iam_instance_profile" "ssm_profile" {
   name = "ec2-ssm-role"
 }
 
+variable "github_git_cidrs_v4" {
+  description = "GitHub's published git/SSH IPv4 ranges — temporary, remove once repo is public"
+  type        = list(string)
+}
+
+variable "github_git_cidrs_v6" {
+  description = "GitHub's published git/SSH IPv6 ranges — temporary, remove once repo is public"
+  type        = list(string)
+}
+
 resource "aws_security_group" "app_server" {
   name        = "app-server-sg"
   description = "No Inbound Access, SSM Manager only"
@@ -38,6 +48,24 @@ resource "aws_security_group" "app_server" {
     protocol    = "udp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  egress {
+    description = "HTTP for package resolution"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+  # checkov:skip=CKV_AWS_23: Temporarily scoped to GitHub's published git/SSH IP ranges for deploy-key-based clone; will be removed once the repo is public and cloning switches to unauthenticated HTTPS.
+  description      = "SSH outbound to GitHub only, temporary, until repo goes public"
+  from_port        = 22
+  to_port          = 22
+  protocol         = "tcp"
+  cidr_blocks      = var.github_git_cidrs_v4
+  ipv6_cidr_blocks = var.github_git_cidrs_v6
+}
 }
 
 resource "aws_instance" "app_server" {
@@ -50,6 +78,9 @@ resource "aws_instance" "app_server" {
   ebs_optimized = true
 
   monitoring = true
+
+  user_data                   = file("${path.module}/leaderboard_game/leaderboard_game/bootstrap.sh")
+  user_data_replace_on_change = true
 
   metadata_options {
     http_tokens = "required"
