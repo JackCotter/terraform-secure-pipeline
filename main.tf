@@ -22,9 +22,12 @@ variable "github_git_cidrs_v4" {
   type        = list(string)
 }
 
-variable "github_git_cidrs_v6" {
-  description = "GitHub's published git/SSH IPv6 ranges — temporary, remove once repo is public"
-  type        = list(string)
+variable "github_ip_ranges" {
+  type = string
+}
+
+locals {
+  github_ip_ranges = jsondecode(var.github_ip_ranges_raw)
 }
 
 resource "aws_security_group" "app_server" {
@@ -63,8 +66,7 @@ resource "aws_security_group" "app_server" {
     from_port        = 22
     to_port          = 22
     protocol         = "tcp"
-    cidr_blocks      = var.github_git_cidrs_v4
-    ipv6_cidr_blocks = var.github_git_cidrs_v6
+    cidr_blocks      = var.github_ip_ranges
   }
 }
 
