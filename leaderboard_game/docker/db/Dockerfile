@@ -1,4 +1,7 @@
 FROM postgres:16-alpine
+# checkov:skip=CKV_DOCKER_3: official postgres entrypoint requires root at
+# init (chown/initdb) then drops to postgres user via gosu at runtime —
+# a static USER line breaks initdb on first run.
 
 # Custom auth rules (scram-sha-256 only, no trust) and logging/connection
 # limits, layered on top of the official image's sane defaults.
