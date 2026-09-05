@@ -10,3 +10,8 @@
 
 * GitHub Actions uses ODIC to authenticate to AWS. The ODIC policy only allows the runner from this GitHub Account and this Repository to assume the necessary IAM role.  GitHub actions assumes a role that gives it just enough permissions to run terraform and build the ec2 instance. It never needs an access key.
 * Terrafrom uses private s3 bucket as backend for storing state. S3 bucket is private and not accessible by the public. GitHub runner's role has just enough permissions to edit and read the state. Permissions are scoped to only this s3 bucket, authenticated through ODIC.
+* Terraform plan step is given readonly permissions on ec2, iam, and s3 per least privilidge. If something somehow someone hijacks that step in the runner, they can only read priviliges and cannot perform any actions.
+
+
+## Future Work
+* Store tfplan in s3 after plan step, reuse in apply step. This guarantees tthat the plan that is generated in the review step is the plan that is executed.
