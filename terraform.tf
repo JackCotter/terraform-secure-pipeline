@@ -10,7 +10,7 @@ terraform {
     bucket         = "terraform-secure-pipeline-state"
     key            = "leaderboard_game/terraform.tfstate"
     region         = "ca-west-1"
-    dynamodb_table = "terraform-locks"  # for state locking
+    dynamodb_table = "terraform-locks" # for state locking
     encrypt        = true
   }
 
