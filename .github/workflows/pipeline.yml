@@ -9,6 +9,9 @@ on:
 permissions:
   contents: read
 
+env:
+  TF_VERSION: "1.16.0"
+
 jobs:
   plan:
     name: Terrafrom Plan
@@ -29,7 +32,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.16.0"
+          terraform_version: ${{env.TF_VERSION}}
 
       - name: Terraform Init
         run: terraform init
@@ -98,7 +101,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.9.0"
+          terraform_version: ${{ env.TF_VERSION }}
  
       - name: Terraform Init
         run: terraform init
