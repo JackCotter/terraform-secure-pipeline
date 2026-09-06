@@ -3,6 +3,9 @@ FROM postgres:16-alpine
 # init (chown/initdb) then drops to postgres user via gosu at runtime —
 # a static USER line breaks initdb on first run.
 
+# Trivy Container Scan showed several outdated packages on base postgres version
+RUN apk update && apk upgrade --no-cache
+
 # Custom auth rules (scram-sha-256 only, no trust) and logging/connection
 # limits, layered on top of the official image's sane defaults.
 COPY pg_hba.conf /etc/postgresql/pg_hba.conf

@@ -1,0 +1,4 @@
+# .trivyignore
+CVE-2025-68121  # gosu binary in postgres:16-alpine base image, not directly patchable;
+                # gosu only used for internal privilege drop at container init, not exposed to input.
+                # Re-check on next postgres:16-alpine tag update.
