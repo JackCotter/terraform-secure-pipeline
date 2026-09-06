@@ -114,6 +114,9 @@ jobs:
           echo "$IMAGES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      - name: Install Trivy
+        uses: aquasecurity/setup-trivy@v2
+
       - name: Scan each image
         env:
           IMAGES: ${{ steps.images.outputs.images }}
