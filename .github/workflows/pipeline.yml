@@ -78,6 +78,48 @@ jobs:
       - name: Run Bandit SAST scan
         run: bandit -r leaderboard_game/game leaderboard_game/leaderboard_game -ll
 
+  dependency-scan:
+    name: Python Dependency Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Run pip-audit
+        run: pip-audit -r leaderboard_game/requirements.txt
+
+  container-scan:
+    name: Container Image Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build all images via compose
+        run: docker compose -f leaderboard_game/docker-compose.yml build
+
+      - name: Get built image list
+        id: images
+        run: |
+          IMAGES=$(docker compose -f leaderboard_game/docker-compose.yml config --images)
+          echo "images<<EOF" >> $GITHUB_OUTPUT
+          echo "$IMAGES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Scan each image
+        run: |
+          for img in ${{ steps.images.outputs.images }}; do
+            echo "Scanning $img"
+            trivy image --exit-code 1 --severity CRITICAL,HIGH "$img"
+          done
 
   apply:
     name: Terraform Apply
