@@ -115,15 +115,18 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Scan each image
+        env:
+          IMAGES: ${{ steps.images.outputs.images }}
         run: |
-          for img in ${{ steps.images.outputs.images }}; do
+          echo "$IMAGES" | while IFS= read -r img; do
+            [ -z "$img" ] && continue
             echo "Scanning $img"
             trivy image --exit-code 1 --severity CRITICAL,HIGH "$img"
           done
 
   apply:
     name: Terraform Apply
-    needs: [plan, checkov, sast-scan]
+    needs: [plan, checkov, sast-scan, dependency-scan, container-scan]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
