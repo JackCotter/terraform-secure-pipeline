@@ -1,5 +1,7 @@
 FROM nginxinc/nginx-unprivileged:1.27-alpine
 
+RUN apk update && apk upgrade --no-cache
+
 COPY --chown=nginx:nginx nginx.conf /etc/nginx/conf.d/default.conf
 
 # Explicit even though the base image already runs as nginx —
