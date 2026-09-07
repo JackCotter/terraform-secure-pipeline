@@ -1,4 +1,15 @@
 services:
+  
+  nginx: 
+    build: ./nginx
+    ports:
+      - "80:8080"
+    depends_on:
+      - web
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+
   db:
     build: ./docker/db
     restart: always
@@ -19,11 +30,16 @@ services:
       DB_PORT: 5432
     depends_on:
       - db
-    ports:
-      - "127.0.0.1:8000:8000"  # bound to localhost only — nginx will front this later
+    expose:
+      - "8000"
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
     command: >
       sh -c "python manage.py migrate --noinput &&
              gunicorn --bind 0.0.0.0:8000 --workers 3 leaderboard_game.wsgi:application"
 
 volumes:
   pgdata:
+  static_volume:
+  media_volume:
