@@ -11,8 +11,11 @@ FROM nginx:1.27-alpine
 RUN apk update && apk upgrade --no-cache
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx-selfsigned.crt /etc/nginx/ssl/nginx-selfsigned.crt
+COPY nginx-selfsigned.key /etc/nginx/ssl/nginx-selfsigned.key
 
-EXPOSE 80
+
+EXPOSE 80 443
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
     CMD wget -qO- http://localhost:80/ || exit 1
