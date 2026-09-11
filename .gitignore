@@ -11,3 +11,6 @@ override.tf.json
 
 # AWS
 .aws/
+
+# Nginx
+*nginx-selfsigned*
