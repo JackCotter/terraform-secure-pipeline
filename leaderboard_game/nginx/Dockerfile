@@ -11,9 +11,9 @@ FROM nginx:1.27-alpine
 RUN apk update && apk upgrade --no-cache
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY proxy-params.conf /etc/nginx/proxy_params.conf
 COPY nginx-selfsigned.crt /etc/nginx/ssl/nginx-selfsigned.crt
 COPY nginx-selfsigned.key /etc/nginx/ssl/nginx-selfsigned.key
-
 
 EXPOSE 80 443
 
