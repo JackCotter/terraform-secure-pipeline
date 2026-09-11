@@ -15,7 +15,7 @@ ALLOWED_HOSTS = [
     h.strip() for h in os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 ]
 
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_FOR", "https")
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
