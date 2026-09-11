@@ -8,7 +8,7 @@ FROM nginx:1.27-alpine
 # Verified at runtime with `docker exec <container> ps aux` -> worker
 # processes run as nginx, only the master process (pid 1) is root.
 
-RUN apk update && apk upgrade --no-cache
+RUN apk upgrade --no-cache
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY proxy-params.conf /etc/nginx/proxy_params.conf

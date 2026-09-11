@@ -4,7 +4,7 @@ FROM postgres:16-alpine
 # a static USER line breaks initdb on first run.
 
 # Trivy Container Scan showed several outdated packages on base postgres version
-RUN apk update && apk upgrade --no-cache
+RUN apk upgrade --no-cache
 
 # Custom auth rules (scram-sha-256 only, no trust) and logging/connection
 # limits, layered on top of the official image's sane defaults.
