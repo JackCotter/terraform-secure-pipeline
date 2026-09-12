@@ -176,7 +176,7 @@ jobs:
           docker build \
             -t ${{ env.ECR_REGISTRY }}/leaderboard-web:${{ env.IMAGE_TAG }} \
             -f leaderboard_game/Dockerfile \
-            leaderboard_game/web
+            leaderboard_game
  
       - name: Build nginx image
         run: |
