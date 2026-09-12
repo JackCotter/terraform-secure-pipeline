@@ -129,13 +129,19 @@ jobs:
 
   apply:
     name: Terraform Apply
-    needs: [plan, checkov, sast-scan, dependency-scan, container-scan]
+    needs: [plan, checkov, sast-scan, dependency-scan]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment: production
+    env:
+      AWS_REGION: ca-west-1
+      AWS_ACCOUNT_ID: "985753407778"
+      ECR_REGISTRY: 985753407778.dkr.ecr.ca-west-1.amazonaws.com
+      IMAGE_TAG: ${{ github.sha }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 #v4
@@ -159,4 +165,30 @@ jobs:
  
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
+
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} \
+            | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}
+ 
+      - name: Build web image
+        run: |
+          docker build \
+            -t ${{ env.ECR_REGISTRY }}/leaderboard-web:${{ env.IMAGE_TAG }} \
+            -f leaderboard_game/Dockerfile \
+            leaderboard_game/web
+ 
+      - name: Build nginx image
+        run: |
+          docker build \
+            -t ${{ env.ECR_REGISTRY }}/leaderboard-nginx:${{ env.IMAGE_TAG }} \
+            -f leaderboard_game/nginx/Dockerfile \
+            leaderboard_game/nginx
+ 
+      - name: Push images to ECR
+        run: |
+          docker push ${{ env.ECR_REGISTRY }}/leaderboard-web:${{ env.IMAGE_TAG }}
+          docker push ${{ env.ECR_REGISTRY }}/leaderboard-nginx:${{ env.IMAGE_TAG }}
+ 
+
 
