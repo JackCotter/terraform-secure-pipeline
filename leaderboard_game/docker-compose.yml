@@ -1,7 +1,7 @@
 services:
   
   nginx: 
-    build: ./nginx
+    image: 985753407778.dkr.ecr.ca-west-1.amazonaws.com/leaderboard-nginx:${IMAGE_TAG}
     ports:
       - "80:80"
       - "443:443"
@@ -12,7 +12,7 @@ services:
       - media_volume:/app/media
 
   db:
-    build: ./docker/db
+    image: 985753407778.dkr.ecr.ca-west-1.amazonaws.com/leaderboard-db:${IMAGE_TAG}
     restart: always
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -23,7 +23,7 @@ services:
     # Not exposed to the host at all — only reachable by the web service, on the compose network.
 
   web:
-    build: .
+    image: 985753407778.dkr.ecr.ca-west-1.amazonaws.com/leaderboard-web:${IMAGE_TAG}
     restart: always
     env_file: .env
     environment:
