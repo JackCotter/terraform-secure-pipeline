@@ -105,9 +105,8 @@ jobs:
 
       - name: Write self-signed cert for CI
         run: |
-          mkdir -p leaderboard_game/nginx/ssl
-          echo "$NGINX_SSL_CERT" | base64 -d > leaderboard_game/nginx/ssl/nginx-selfsigned.crt
-          echo "$NGINX_SSL_KEY" | base64 -d > leaderboard_game/nginx/ssl/nginx-selfsigned.key
+          echo "$NGINX_SSL_CERT" | base64 -d > leaderboard_game/nginx/nginx-selfsigned.crt
+          echo "$NGINX_SSL_KEY" | base64 -d > leaderboard_game/nginx/nginx-selfsigned.key
         env:
           NGINX_SSL_CERT: ${{ secrets.NGINX_SSL_CERT }}
           NGINX_SSL_KEY: ${{ secrets.NGINX_SSL_KEY }}
@@ -188,13 +187,12 @@ jobs:
             leaderboard_game
  
       - name: Write self-signed cert for CI
-        run: |
-          mkdir -p leaderboard_game/nginx/ssl
-          echo "$NGINX_SSL_CERT" | base64 -d > leaderboard_game/nginx/ssl/nginx-selfsigned.crt
-          echo "$NGINX_SSL_KEY" | base64 -d > leaderboard_game/nginx/ssl/nginx-selfsigned.key
         env:
           NGINX_SSL_CERT: ${{ secrets.NGINX_SSL_CERT }}
           NGINX_SSL_KEY: ${{ secrets.NGINX_SSL_KEY }}
+        run: |
+          echo "$NGINX_SSL_CERT" | base64 -d > leaderboard_game/nginx/nginx-selfsigned.crt
+          echo "$NGINX_SSL_KEY" | base64 -d > leaderboard_game/nginx/nginx-selfsigned.key
 
       - name: Build nginx image
         run: |
