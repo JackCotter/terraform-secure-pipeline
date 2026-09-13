@@ -226,6 +226,12 @@ jobs:
             --targets "Key=tag:Name,Values=terraform-pipeline" \
             --parameters commands="[
               'mkdir -p /opt/leaderboard',
+              'aws ssm get-parameter --name /leaderboard/db-user --with-decryption --query Parameter.Value --output text >> /tmp/dbuser',
+              'echo "POSTGRES_USER=$(cat /tmp/dbuser)" >> /opt/leaderboard/.env',
+              'aws ssm get-parameter --name /leaderboard/db-password --with-decryption --query Parameter.Value --output text >> /tmp/dbpassword',
+              'echo "POSTGRES_USER=$(cat /tmp/dbpassword)" >> /opt/leaderboard/.env',
+              'aws ssm get-parameter --name /leaderboard/db-name --with-decryption --query Parameter.Value --output text >> /tmp/dbname',
+              'echo "POSTGRES_USER=$(cat /tmp/dbname)" >> /opt/leaderboard/.env',
               'aws s3 cp s3://leaderboard-releases/releases/${{ env.IMAGE_TAG }}/docker-compose.yml /opt/leaderboard/docker-compose.yml',
               'aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}',
               'cd /opt/leaderboard && ECR_REGISTRY=${{ env.ECR_REGISTRY }} IMAGE_TAG=${{ env.IMAGE_TAG }} docker compose pull',
