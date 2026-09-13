@@ -103,6 +103,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 #v4
 
+      - name: Write self-signed cert for CI
+        run: |
+          mkdir -p leaderboard_game/nginx/ssl
+          echo "$NGINX_SSL_CERT" | base64 -d > leaderboard_game/nginx/ssl/nginx-selfsigned.crt
+          echo "$NGINX_SSL_KEY" | base64 -d > leaderboard_game/nginx/ssl/nginx-selfsigned.key
+        env:
+          NGINX_SSL_CERT: ${{ secrets.NGINX_SSL_CERT }}
+          NGINX_SSL_KEY: ${{ secrets.NGINX_SSL_KEY }}
+
       - name: Build all images via compose
         run: docker compose -f leaderboard_game/docker-compose.yml build
 
@@ -178,6 +187,15 @@ jobs:
             -f leaderboard_game/Dockerfile \
             leaderboard_game
  
+      - name: Write self-signed cert for CI
+        run: |
+          mkdir -p leaderboard_game/nginx/ssl
+          echo "$NGINX_SSL_CERT" | base64 -d > leaderboard_game/nginx/ssl/nginx-selfsigned.crt
+          echo "$NGINX_SSL_KEY" | base64 -d > leaderboard_game/nginx/ssl/nginx-selfsigned.key
+        env:
+          NGINX_SSL_CERT: ${{ secrets.NGINX_SSL_CERT }}
+          NGINX_SSL_KEY: ${{ secrets.NGINX_SSL_KEY }}
+
       - name: Build nginx image
         run: |
           docker build \
