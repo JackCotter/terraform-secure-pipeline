@@ -205,8 +205,8 @@ jobs:
         run: |
           docker build \
             -t ${{ env.ECR_REGISTRY }}/leaderboard-db:${{ env.IMAGE_TAG }} \
-            -f leaderboard_game/db/Dockerfile \
-            leaderboard_game/db
+            -f leaderboard_game/docker/db/Dockerfile \
+            leaderboard_game/docker/db
  
       - name: Push images to ECR
         run: |
