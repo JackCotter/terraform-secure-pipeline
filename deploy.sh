@@ -11,6 +11,9 @@ mkdir -p /opt/leaderboard
 POSTGRES_USER=$(aws ssm get-parameter --name /leaderboard/db-user --with-decryption --query Parameter.Value --output text)
 POSTGRES_PASSWORD=$(aws ssm get-parameter --name /leaderboard/db-password --with-decryption --query Parameter.Value --output text)
 POSTGRES_DB=$(aws ssm get-parameter --name /leaderboard/db-name --with-decryption --query Parameter.Value --output text)
+DJANGO_SECRET_KEY=$(aws ssm get-parameter --name /leaderboard/django-secret-key --with-decryption --query Parameter.Value --output text)
+ALLOWED_HOSTS=$(aws ssm get-parameter --name /leaderboard/allowed-hosts --query Parameter.Value --output text)
+
 
 # Move secrets to .env file so Docker can read them
 cat > /opt/leaderboard/.env << EOF
@@ -19,6 +22,9 @@ IMAGE_TAG=${IMAGE_TAG}
 DB_USER=${POSTGRES_USER}
 DB_PASSWORD=${POSTGRES_PASSWORD}
 DB_NAME=${POSTGRES_DB}
+DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
+DJANGO_ALLOWED_HOSTS=$ALLOWED_HOSTS
+DJANGO_DEBUG=False
 EOF
 chmod 600 /opt/leaderboard/.env
 
