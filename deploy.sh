@@ -16,9 +16,9 @@ POSTGRES_DB=$(aws ssm get-parameter --name /leaderboard/db-name --with-decryptio
 cat > /opt/leaderboard/.env << EOF
 ECR_REGISTRY=${ECR_REGISTRY}
 IMAGE_TAG=${IMAGE_TAG}
-POSTGRES_USER=${POSTGRES_USER}
-POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-POSTGRES_DB=${POSTGRES_DB}
+DB_USER=${POSTGRES_USER}
+DB_PASSWORD=${POSTGRES_PASSWORD}
+DB_NAME=${POSTGRES_DB}
 EOF
 chmod 600 /opt/leaderboard/.env
 
