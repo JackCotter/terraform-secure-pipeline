@@ -75,6 +75,9 @@ resource "aws_instance" "app_server" {
 
   monitoring = true
 
+  user_data                   = file("${path.module}/bootstrap.sh")
+  user_data_replace_on_change = true
+
   metadata_options {
     http_tokens = "required"
   }
