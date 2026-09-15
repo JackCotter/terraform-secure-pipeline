@@ -186,14 +186,6 @@ jobs:
             -f leaderboard_game/Dockerfile \
             leaderboard_game
  
-      - name: Write self-signed cert for CI
-        env:
-          NGINX_SSL_CERT: ${{ secrets.NGINX_SSL_CERT }}
-          NGINX_SSL_KEY: ${{ secrets.NGINX_SSL_KEY }}
-        run: |
-          echo "$NGINX_SSL_CERT" | base64 -d > leaderboard_game/nginx/nginx-selfsigned.crt
-          echo "$NGINX_SSL_KEY" | base64 -d > leaderboard_game/nginx/nginx-selfsigned.key
-
       - name: Build nginx image
         run: |
           docker build \
