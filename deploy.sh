@@ -14,6 +14,11 @@ POSTGRES_DB=$(aws ssm get-parameter --name /leaderboard/db-name --with-decryptio
 DJANGO_SECRET_KEY=$(aws ssm get-parameter --name /leaderboard/django-secret-key --with-decryption --query Parameter.Value --output text)
 ALLOWED_HOSTS=$(aws ssm get-parameter --name /leaderboard/allowed-hosts --query Parameter.Value --output text)
 
+# Fetch SSL/TLS Certs
+mkdir -p /opt/leaderboard/ssl
+aws ssm get-parameter --name /leaderboard/tls-cert --with-decryption --query Parameter.Value --output text > /opt/leaderboard/ssl/origin.crt
+aws ssm get-parameter --name /leaderboard/tls-key --with-decryption --query Parameter.Value --output text > /opt/leaderboard/ssl/origin.key
+chmod 600 /opt/leaderboard/ssl/origin.key
 
 # Move secrets to .env file so Docker can read them
 cat > /opt/leaderboard/.env << EOF

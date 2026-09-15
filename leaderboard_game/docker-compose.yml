@@ -10,6 +10,7 @@ services:
     volumes:
       - static_volume:/app/staticfiles
       - media_volume:/app/media
+      - /opt/leaderboard/ssl:/etc/nginx/ssl:ro
 
   db:
     image: 985753407778.dkr.ecr.ca-west-1.amazonaws.com/leaderboard-db:${IMAGE_TAG}
