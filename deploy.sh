@@ -34,6 +34,11 @@ EOF
 chmod 600 /opt/leaderboard/.env
 
 # Copy docker-compose from s3
+which aws || {
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  unzip awscliv2.zip
+  sudo ./aws/install
+}
 aws s3 cp "s3://leaderboard-releases/releases/${IMAGE_TAG}/docker-compose.yml" /opt/leaderboard/docker-compose.yml
 
 aws ecr get-login-password --region "${AWS_REGION}" | docker login --username AWS --password-stdin "${ECR_REGISTRY}"
