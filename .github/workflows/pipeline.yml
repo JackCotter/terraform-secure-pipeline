@@ -97,7 +97,7 @@ jobs:
         run: pip-audit -r leaderboard_game/requirements.txt
 
   container-scan:
-    name: Container Image Scan
+    name: Container Image Scan - ${{ matrix.image }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
