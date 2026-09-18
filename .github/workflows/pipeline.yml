@@ -97,47 +97,42 @@ jobs:
         run: pip-audit -r leaderboard_game/requirements.txt
 
   container-scan:
-    name: Container Image Scan
+    name: Container Image Scan - ${{ matrix.image }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: web
+            dockerfile: leaderboard_game/Dockerfile
+            context: leaderboard_game
+          - image: nginx
+            dockerfile: leaderboard_game/nginx/Dockerfile
+            context: leaderboard_game/nginx
+          - image: db
+            dockerfile: leaderboard_game/docker/db/Dockerfile
+            context: leaderboard_game/docker/db
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 #v4
 
-      - name: Write self-signed cert for CI
+      - name: Build ${{ matrix.image }} image
         run: |
-          echo "$NGINX_SSL_CERT" | base64 -d > leaderboard_game/nginx/nginx-selfsigned.crt
-          echo "$NGINX_SSL_KEY" | base64 -d > leaderboard_game/nginx/nginx-selfsigned.key
-        env:
-          NGINX_SSL_CERT: ${{ secrets.NGINX_SSL_CERT }}
-          NGINX_SSL_KEY: ${{ secrets.NGINX_SSL_KEY }}
-
-      - name: Build all images via compose
-        run: docker compose -f leaderboard_game/docker-compose.yml build
-
-      - name: Get built image list
-        id: images
-        run: |
-          IMAGES=$(docker compose -f leaderboard_game/docker-compose.yml config --images)
-          echo "images<<EOF" >> $GITHUB_OUTPUT
-          echo "$IMAGES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          docker build \
+            -t leaderboard-${{ matrix.image }}:scan \
+            -f ${{ matrix.dockerfile }} \
+            ${{ matrix.context }}
 
       - name: Install Trivy
         uses: aquasecurity/setup-trivy@e07451d2e059ed86c2870430ea286b3a9e0bf241
 
-      - name: Scan each image
-        env:
-          IMAGES: ${{ steps.images.outputs.images }}
+      - name: Scan ${{ matrix.image }} image
         run: |
-          echo "$IMAGES" | while IFS= read -r img; do
-            [ -z "$img" ] && continue
-            echo "Scanning $img"
-            trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed "$img"
-          done
+          trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed leaderboard-${{ matrix.image }}:scan
 
   apply:
     name: Terraform Apply
-    needs: [plan, checkov, sast-scan, dependency-scan]
+    needs: [plan, checkov, sast-scan, dependency-scan, container-scan]
     runs-on: ubuntu-latest
     permissions:
       id-token: write

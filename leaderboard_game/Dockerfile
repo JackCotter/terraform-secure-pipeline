@@ -10,15 +10,17 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 
-# ---- Final stage: minimal runtime image ----
+# ---- Final stage: minimal runtime image. No GCC, no build tools, less attack surface less bloat ----
 FROM python:3.12-slim
 
+# Configure Py to not use .pyc and output logs straight to stderr
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     DJANGO_SETTINGS_MODULE=leaderboard_game.settings
 
-# Only the runtime lib for psycopg2, not the full -dev/build toolchain
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Only the runtime lib for psycopg2, not the full -dev/build toolchain. Update packages to address CVEs found by trivy.
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
     libpq5 curl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -27,6 +29,7 @@ COPY --from=builder /install /usr/local
 WORKDIR /app
 COPY . .
 
+# Create dedicated unpriveledged user to run app.
 RUN groupadd -r appgroup && useradd -r -g appgroup -d /app appuser \
     && mkdir -p /app/staticfiles \
     && chown -R appuser:appgroup /app
@@ -35,7 +38,8 @@ USER appuser
 
 # DJANGO_SECRET_KEY is required by settings.py just to import — this build-time
 # value is never used for anything security-relevant and is overridden by the
-# real secret key (from .env / SSM) at container runtime.
+# real secret key (from .env / SSM) at container runtime. RUN variables only last
+# for the RUN shell process then are discarded.
 RUN DJANGO_SECRET_KEY=build-time-placeholder-unused-at-runtime python manage.py collectstatic --noinput
 
 EXPOSE 8000
