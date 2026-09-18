@@ -103,37 +103,39 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 #v4
 
-      - name: Write self-signed cert for CI
+      - name: Build web image
         run: |
-          echo "$NGINX_SSL_CERT" | base64 -d > leaderboard_game/nginx/nginx-selfsigned.crt
-          echo "$NGINX_SSL_KEY" | base64 -d > leaderboard_game/nginx/nginx-selfsigned.key
-        env:
-          NGINX_SSL_CERT: ${{ secrets.NGINX_SSL_CERT }}
-          NGINX_SSL_KEY: ${{ secrets.NGINX_SSL_KEY }}
-
-      - name: Build all images via compose
-        run: docker compose -f leaderboard_game/docker-compose.yml build
-
-      - name: Get built image list
-        id: images
+          docker build \
+            -t leaderboard-web \
+            -f leaderboard_game/Dockerfile \
+            leaderboard_game
+ 
+      - name: Build nginx image
         run: |
-          IMAGES=$(docker compose -f leaderboard_game/docker-compose.yml config --images)
-          echo "images<<EOF" >> $GITHUB_OUTPUT
-          echo "$IMAGES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          docker build \
+            -t leaderboard-nginx \
+            -f leaderboard_game/nginx/Dockerfile \
+            leaderboard_game/nginx
+
+      - name: Build db image
+        run: |
+          docker build \
+            -t leaderboard-db \
+            -f leaderboard_game/docker/db/Dockerfile \
+            leaderboard_game/docker/db
 
       - name: Install Trivy
         uses: aquasecurity/setup-trivy@e07451d2e059ed86c2870430ea286b3a9e0bf241
 
-      - name: Scan each image
-        env:
-          IMAGES: ${{ steps.images.outputs.images }}
-        run: |
-          echo "$IMAGES" | while IFS= read -r img; do
-            [ -z "$img" ] && continue
-            echo "Scanning $img"
-            trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed "$img"
-          done
+      - name: Scan web image
+        run: trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed "leaderboard-web"
+
+      - name: Scan nginx image
+        run: trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed "leaderboard-nginx"
+
+      - name: Scan db image
+        run: trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed "leaderboard-db"
+
 
   apply:
     name: Terraform Apply
